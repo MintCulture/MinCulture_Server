@@ -1,2 +1,7 @@
-package MintCulture.Server.User;public class User {
+package MintCulture.Server.User;
+
+import jakarta.persistence.Entity;
+
+@Entity
+public class User {
 }
