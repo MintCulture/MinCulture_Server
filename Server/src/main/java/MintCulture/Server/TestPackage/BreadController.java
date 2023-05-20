@@ -1,12 +1,10 @@
-package MintCulture.Server.Test;
+package MintCulture.Server.TestPackage;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,11 +12,25 @@ import java.util.List;
 public class BreadController {
     private final BreadService breadService;
 
-    @GetMapping
-    public ResponseEntity<Iterable<Bread>> getAllBread(){
+//    @GetMapping
+//    public ResponseEntity<Iterable<Bread>> getAllBread(){
+//        Iterable<Bread> bread = breadService.getAllBread();
+//        return new ResponseEntity<>(bread, HttpStatus.OK);
+//    }
+
+
+//    @GetMapping
+//    public ResponseEntity<Iterable<Bread>> getAllBread() {
+//        Iterable<Bread> bread = breadService.getAllBread();
+//        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(bread);
+//    }
+
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Iterable<Bread>> getAllBread() {
         Iterable<Bread> bread = breadService.getAllBread();
-        return new ResponseEntity<>(bread, HttpStatus.OK);
+        return ResponseEntity.ok().body(bread);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Bread> getBread(@PathVariable Long id){
@@ -60,3 +72,4 @@ public class BreadController {
         }
     }
 }
+

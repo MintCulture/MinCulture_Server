@@ -1,4 +1,4 @@
-package MintCulture.Server.Test;
+package MintCulture.Server.TestPackage;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

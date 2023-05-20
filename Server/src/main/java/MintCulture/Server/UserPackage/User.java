@@ -1,5 +1,4 @@
-package MintCulture.Server.Test;
-
+package MintCulture.Server.UserPackage;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,11 +8,17 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Bread {
+public class User {
+
     @Id
-    // @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+
+    @Column(name="user_name")
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    private UserState state;
+
 }
+
