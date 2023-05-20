@@ -1,20 +1,14 @@
-package MintCulture.Server.NFTTest;
+package MintCulture.Server.NFTUser;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+public class NFTDto {
 
-public class NFT {
-
-    @Id
     @Column(name ="serial_number")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 일렬번호(PK)
@@ -31,11 +25,9 @@ public class NFT {
     @Column(name ="user_level")
     private int level; // 레벨 for 해금
 
+    @Builder.Default
     @Column(name ="exp")
-    private Long nextToLevel; // 다음 레벨업에 필요한 일종의 경험치
+    private long nextToLevel = 1; // 다음 레벨업에 필요한 일종의 경험치
+
 
 }
-
-
-
-

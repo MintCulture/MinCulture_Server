@@ -1,4 +1,4 @@
-package MintCulture.Server.NFTTest;
+package MintCulture.Server.NFTUser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,9 +27,12 @@ public class NFTController {
            - nft: The created NFT object.
      */
     @PostMapping
-    public ResponseEntity<NFT> createNFT(@RequestBody NFTDto nftdto){
-        NFT createdNft = nftService.saveNFT(nftdto);
-        return new ResponseEntity<>(createdNft, HttpStatus.CREATED);
+    public ResponseEntity<UserNFT> createNFT(@RequestBody NFTDto nftdto){
+        UserNFT createdUserNft = nftService.saveNFT(nftdto);
+        
+        // NFT 발급
+        
+        return new ResponseEntity<>(createdUserNft, HttpStatus.CREATED);
     }
 
     /*
@@ -42,9 +45,9 @@ public class NFTController {
             - nfts: A list of NFT objects.
     */
     @GetMapping("/all")
-    public ResponseEntity<List<NFT>> getNfts(){
-        List<NFT> nfts = nftService.getAllNFTs();
-        return new ResponseEntity<>(nfts, HttpStatus.OK);
+    public ResponseEntity<List<UserNFT>> getNfts(){
+        List<UserNFT> userNfts = nftService.getAllNFTs();
+        return new ResponseEntity<>(userNfts, HttpStatus.OK);
     }
 
      /*
@@ -58,10 +61,10 @@ public class NFTController {
             - nft: The NFT object with the specified ID.
     */
     @GetMapping("/{id}")
-    public ResponseEntity<NFT> getNftById(@PathVariable Long id){
-        NFT nft = nftService.getNFTById(id);
-        if (nft != null) {
-            return new ResponseEntity<>(nft, HttpStatus.OK);
+    public ResponseEntity<UserNFT> getNftById(@PathVariable Long id){
+        UserNFT userNft = nftService.getNFTById(id);
+        if (userNft != null) {
+            return new ResponseEntity<>(userNft, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -81,10 +84,19 @@ public class NFTController {
         - nft: The updated NFT object.
 */
     @PutMapping("/{id}")
-    public ResponseEntity<NFT> updateNFT(@PathVariable Long id, @RequestBody NFTDto nftdto) {
-        NFT updatedNFT = nftService.updateNFT(id, nftdto);
-        if (updatedNFT != null) {
-            return new ResponseEntity<>(updatedNFT, HttpStatus.OK);
+    public ResponseEntity<UserNFT> updateNFT(@PathVariable long id, @RequestBody NFTDto nftdto) {
+
+        UserNFT updatedUserNFT = nftService.updateNFT(id, nftdto);
+
+        if (updatedUserNFT != null) {
+
+            long iD = updatedUserNFT.getId();
+            int subsMonth = updatedUserNFT.getSubscriptionMonth();
+            long donation = updatedUserNFT.getTotalDonationValue();
+
+            nftService.getExp(iD,subsMonth,donation);
+            //getExp(Long id, int subsMonth, long donation)
+            return new ResponseEntity<>(updatedUserNFT, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
