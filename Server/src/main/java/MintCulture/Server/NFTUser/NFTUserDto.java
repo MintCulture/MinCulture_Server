@@ -16,6 +16,9 @@ public class NFTUserDto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 일렬번호(PK)
 
+    @Column(name="serial_number")
+    private String serialNum;
+
     @Column(name ="owner_name", nullable = false)
     private String owner; // NFT소유자 이름
 

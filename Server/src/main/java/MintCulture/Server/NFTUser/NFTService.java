@@ -35,6 +35,7 @@ public class NFTService {
         nftUser.setTotalDonationValue(nftdto.getTotalDonationValue());
         nftUser.setLevel(nftdto.getLevel());
         nftUser.setNextToLevel(nftdto.getNextToLevel());
+        nftUser.setSerialNum((nftdto.getSerialNum()));
         return nftRepository.save(nftUser);
     }
 
@@ -68,8 +69,8 @@ public class NFTService {
         Output:
             - nft: The NFT object with the specified ID.
     */
-    public NFTUser getNFTById(Long id) {
-        Optional<NFTUser> nftOptional = nftRepository.findById(id);
+    public NFTUser getNFTById(Long serialNum) {
+        Optional<NFTUser> nftOptional = nftRepository.findById(serialNum);
         return nftOptional.orElse(null);
     }
 
@@ -85,12 +86,12 @@ public class NFTService {
     Output:
         - nft: The updated NFT object.
 */
-    public NFTUser updateNFT(Long id, NFTUserDto nftdto) {
-        NFTUser existingNFTUser = nftRepository.findById(id).orElse(null);
+    public NFTUser updateNFT(Long serialNum, NFTUserDto nftdto) {
+        NFTUser existingNFTUser = nftRepository.findById(serialNum).orElse(null);
 
         if (existingNFTUser != null) {
             int subsMonth = existingNFTUser.getSubscriptionMonth();
-            long curId = existingNFTUser.getId();
+            String curId = existingNFTUser.getSerialNum();
             long donation = existingNFTUser.getTotalDonationValue();
             int curLevel = existingNFTUser.getLevel();
             long curExp = existingNFTUser.getNextToLevel();
@@ -136,9 +137,9 @@ public class NFTService {
         Output:
             - deleted: A boolean indicating whether the NFT was successfully deleted.
     */
-    public boolean deleteNFT(Long id) {
-        if (nftRepository.existsById(id)) {
-            nftRepository.deleteById(id);
+    public boolean deleteNFT(Long serialNum) {
+        if (nftRepository.existsById(serialNum)) {
+            nftRepository.deleteById(serialNum);
             return true;
         } else {
             return false;
@@ -149,7 +150,8 @@ public class NFTService {
     /*
         사용자 레벨에 따라 아이템 해금 -> 언제 getExp가 호출될지 정해줘야함
      */
-    public void getExp(long id, int subsMonth, long donation) {
+    public void getExp(String serialNum, int subsMonth, long donation) {
+        long id = Long.parseLong(serialNum);
         NFTUser nftUser = nftRepository.findById(id).orElse(null);
         if (nftUser != null) {
             long exp = subsMonth * 10 + (donation / 10000); // 예) 구독 3개월 도네 10만원 -> (30+10)/10 -> 경험치:4
