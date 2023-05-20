@@ -27,12 +27,12 @@ public class NFTController {
            - nft: The created NFT object.
      */
     @PostMapping
-    public ResponseEntity<UserNFT> createNFT(@RequestBody NFTDto nftdto){
-        UserNFT createdUserNft = nftService.saveNFT(nftdto);
+    public ResponseEntity<NFTUser> createNFT(@RequestBody NFTUserDto nftdto){
+        NFTUser createdNftUser = nftService.saveNFT(nftdto);
         
         // NFT 발급
         
-        return new ResponseEntity<>(createdUserNft, HttpStatus.CREATED);
+        return new ResponseEntity<>(createdNftUser, HttpStatus.CREATED);
     }
 
     /*
@@ -45,9 +45,9 @@ public class NFTController {
             - nfts: A list of NFT objects.
     */
     @GetMapping("/all")
-    public ResponseEntity<List<UserNFT>> getNfts(){
-        List<UserNFT> userNfts = nftService.getAllNFTs();
-        return new ResponseEntity<>(userNfts, HttpStatus.OK);
+    public ResponseEntity<List<NFTUser>> getNfts(){
+        List<NFTUser> nftUsers = nftService.getAllNFTs();
+        return new ResponseEntity<>(nftUsers, HttpStatus.OK);
     }
 
      /*
@@ -61,10 +61,10 @@ public class NFTController {
             - nft: The NFT object with the specified ID.
     */
     @GetMapping("/{id}")
-    public ResponseEntity<UserNFT> getNftById(@PathVariable Long id){
-        UserNFT userNft = nftService.getNFTById(id);
-        if (userNft != null) {
-            return new ResponseEntity<>(userNft, HttpStatus.OK);
+    public ResponseEntity<NFTUser> getNftById(@PathVariable Long id){
+        NFTUser nftUser = nftService.getNFTById(id);
+        if (nftUser != null) {
+            return new ResponseEntity<>(nftUser, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -84,19 +84,20 @@ public class NFTController {
         - nft: The updated NFT object.
 */
     @PutMapping("/{id}")
-    public ResponseEntity<UserNFT> updateNFT(@PathVariable long id, @RequestBody NFTDto nftdto) {
+    public ResponseEntity<NFTUser> updateNFT(@PathVariable long id, @RequestBody NFTUserDto nftdto) {
 
-        UserNFT updatedUserNFT = nftService.updateNFT(id, nftdto);
+        NFTUser updatedNFTUser = nftService.updateNFT(id, nftdto);
 
-        if (updatedUserNFT != null) {
+        if (updatedNFTUser != null) {
 
-            long iD = updatedUserNFT.getId();
-            int subsMonth = updatedUserNFT.getSubscriptionMonth();
-            long donation = updatedUserNFT.getTotalDonationValue();
+//            long iD = updatedNFTUser.getId();
+//            int subsMonth = updatedNFTUser.getSubscriptionMonth();
+//            long donation = updatedNFTUser.getTotalDonationValue();
+//
+//            nftService.getExp(iD,subsMonth,donation);
+//            //getExp(Long id, int subsMonth, long donation)
 
-            nftService.getExp(iD,subsMonth,donation);
-            //getExp(Long id, int subsMonth, long donation)
-            return new ResponseEntity<>(updatedUserNFT, HttpStatus.OK);
+            return new ResponseEntity<>(updatedNFTUser, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

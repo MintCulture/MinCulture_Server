@@ -3,6 +3,9 @@ package MintCulture.Server.NFTUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,14 +28,14 @@ public class NFTService {
            - nft: The created NFT object.
    */
 
-    public UserNFT saveNFT(NFTDto nftdto) {
-        UserNFT userNft = new UserNFT();
-        userNft.setOwner(nftdto.getOwner());
-        userNft.setSubscriptionMonth(nftdto.getSubscriptionMonth());
-        userNft.setTotalDonationValue(nftdto.getTotalDonationValue());
-        userNft.setLevel(nftdto.getLevel());
-        userNft.setNextToLevel(nftdto.getNextToLevel());
-        return nftRepository.save(userNft);
+    public NFTUser saveNFT(NFTUserDto nftdto) {
+        NFTUser nftUser = new NFTUser();
+        nftUser.setOwner(nftdto.getOwner());
+        nftUser.setSubscriptionMonth(nftdto.getSubscriptionMonth());
+        nftUser.setTotalDonationValue(nftdto.getTotalDonationValue());
+        nftUser.setLevel(nftdto.getLevel());
+        nftUser.setNextToLevel(nftdto.getNextToLevel());
+        return nftRepository.save(nftUser);
     }
 
     /*
@@ -44,10 +47,10 @@ public class NFTService {
         Output:
             - nfts: A list of NFT objects.
     */
-    public List<UserNFT> getAllNFTs() {
-        List<UserNFT> userNfts = nftRepository.findAll();
-        if(userNfts != null){
-            return userNfts;
+    public List<NFTUser> getAllNFTs() {
+        List<NFTUser> nftUsers = nftRepository.findAll();
+        if(nftUsers != null){
+            return nftUsers;
         }
         else{
             return null;
@@ -65,8 +68,8 @@ public class NFTService {
         Output:
             - nft: The NFT object with the specified ID.
     */
-    public UserNFT getNFTById(Long id) {
-        Optional<UserNFT> nftOptional = nftRepository.findById(id);
+    public NFTUser getNFTById(Long id) {
+        Optional<NFTUser> nftOptional = nftRepository.findById(id);
         return nftOptional.orElse(null);
     }
 
@@ -82,24 +85,44 @@ public class NFTService {
     Output:
         - nft: The updated NFT object.
 */
-    public UserNFT updateNFT(Long id, NFTDto nftdto) {
-        UserNFT existingUserNFT = nftRepository.findById(id)
+    public NFTUser updateNFT(Long id, NFTUserDto nftdto) {
+        NFTUser existingNFTUser = nftRepository.findById(id)
                 .orElse(null);
 
-        if (existingUserNFT != null) {
-            // Update the properties of the existing NFT object
-            existingUserNFT.setOwner(nftdto.getOwner());
-            existingUserNFT.setSubscriptionMonth(nftdto.getSubscriptionMonth());
-            existingUserNFT.setTotalDonationValue(nftdto.getTotalDonationValue());
-            existingUserNFT.setLevel(nftdto.getLevel());
-            existingUserNFT.setNextToLevel(nftdto.getNextToLevel());
+        if (existingNFTUser != null) {
 
-            // Save the updated NFT
-            UserNFT updatedUserNFT = nftRepository.save(existingUserNFT);
 
-            return updatedUserNFT;
-        }
-        else {
+
+
+
+
+
+
+
+
+
+            int curLevel = existingNFTUser.getLevel();
+
+            existingNFTUser.setOwner(nftdto.getOwner());
+            existingNFTUser.setSubscriptionMonth(nftdto.getSubscriptionMonth());
+            existingNFTUser.setTotalDonationValue(nftdto.getTotalDonationValue());
+
+            if (curLevel == 1) {
+                existingNFTUser.setLevel(curLevel + 1);
+                existingNFTUser.setNextToLevel(nftdto.getNextToLevel() + 3);
+            } else if (curLevel == 2) {
+                existingNFTUser.setLevel(curLevel + 1);
+                existingNFTUser.setNextToLevel(nftdto.getNextToLevel() + 3);
+            } else if (curLevel >= 3) {
+                existingNFTUser.setLevel(3);
+                existingNFTUser.setNextToLevel(nftdto.getNextToLevel());
+            }
+
+            // Save the updated NFTUser
+            NFTUser updatedNFTUser = nftRepository.save(existingNFTUser);
+
+            return updatedNFTUser;
+        } else {
             return null;
         }
     }
@@ -128,36 +151,29 @@ public class NFTService {
     /*
         사용자 레벨에 따라 아이템 해금 -> 언제 getExp가 호출될지 정해줘야함
      */
-    public void getExp(Long id, int subsMonth, long donation) {
-        UserNFT userNft = nftRepository.findById(id).orElse(null);
-        if (userNft != null) {
-            long exp = subsMonth * 10 + (donation / 10000); // 예) 구독3개월 도네10만원 -> (30+10)/10 -> 4
-            int newLevel = levelUp(userNft.getLevel(), exp);
+    public void getExp(long id, int subsMonth, long donation) {
+        NFTUser nftUser = nftRepository.findById(id).orElse(null);
+        if (nftUser != null) {
+            long exp = subsMonth * 10 + (donation / 10000); // 예) 구독 3개월 도네 10만원 -> (30+10)/10 -> 4
+            long nextToLevel = nftUser.getNextToLevel();
+            int curLevel = nftUser.getLevel();
 
-            if (newLevel == 2) {
-                userNft.setLevel(newLevel);
-                nftRepository.save(userNft); // 레벨을 2로 업데이트하고 데이터베이스에 저장
-            } else if (newLevel == 3) {
-                userNft.setLevel(newLevel);
-                nftRepository.save(userNft); // 레벨을 3으로 업데이트하고 데이터베이스에 저장
+            if (exp >= nextToLevel) {
+                nftUser.setLevel(curLevel + 1);
+                nftUser.setNextToLevel(nextToLevel + 3); // 레벨이 올라갈 때마다 다음 레벨에 필요한 경험치를 3 증가시킴
+                nftRepository.save(nftUser);
             }
         }
     }
 
     /*
-        경험치에 따라 사용자 레벨업
-     */
-    private int levelUp(int currentLevel, long exp) {
-        int newLevel = currentLevel;
-        long tmp = exp / 10;
-        if (tmp >= 3) {
-            newLevel += 1;
-        } else if (tmp >= 6) {
-            newLevel += 1;
-        } else if (tmp >= 9) {
-            newLevel += 1;
-        }
-        return newLevel;
+         한 달 지났는지 체크
+    */
+    public static boolean isOneMonthPassed(LocalDateTime timestamp) {
+        LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
+        long monthsDifference = ChronoUnit.MONTHS.between(timestamp, currentTime);
+        return monthsDifference >= 1;
     }
 
+   
 }
