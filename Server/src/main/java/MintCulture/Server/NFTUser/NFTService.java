@@ -86,25 +86,23 @@ public class NFTService {
         - nft: The updated NFT object.
 */
     public NFTUser updateNFT(Long id, NFTUserDto nftdto) {
-        NFTUser existingNFTUser = nftRepository.findById(id)
-                .orElse(null);
+        NFTUser existingNFTUser = nftRepository.findById(id).orElse(null);
 
         if (existingNFTUser != null) {
-
-
-
-
-
-
-
-
-
-
-
+            int subsMonth = existingNFTUser.getSubscriptionMonth();
+            long curId = existingNFTUser.getId();
+            long donation = existingNFTUser.getTotalDonationValue();
             int curLevel = existingNFTUser.getLevel();
+            long curExp = existingNFTUser.getNextToLevel();
+
+            LocalDateTime time = existingNFTUser.getCreatedTime();
+
+            if (isOneMonthPassed(time)) { // 구독 1달이 지나면 경험치 획득 및 현재 구독개월수+1
+                getExp(curId, subsMonth, donation);
+                existingNFTUser.setSubscriptionMonth(nftdto.getSubscriptionMonth()+1);
+            }
 
             existingNFTUser.setOwner(nftdto.getOwner());
-            existingNFTUser.setSubscriptionMonth(nftdto.getSubscriptionMonth());
             existingNFTUser.setTotalDonationValue(nftdto.getTotalDonationValue());
 
             if (curLevel == 1) {
@@ -154,9 +152,10 @@ public class NFTService {
     public void getExp(long id, int subsMonth, long donation) {
         NFTUser nftUser = nftRepository.findById(id).orElse(null);
         if (nftUser != null) {
-            long exp = subsMonth * 10 + (donation / 10000); // 예) 구독 3개월 도네 10만원 -> (30+10)/10 -> 4
+            long exp = subsMonth * 10 + (donation / 10000); // 예) 구독 3개월 도네 10만원 -> (30+10)/10 -> 경험치:4
             long nextToLevel = nftUser.getNextToLevel();
             int curLevel = nftUser.getLevel();
+           
 
             if (exp >= nextToLevel) {
                 nftUser.setLevel(curLevel + 1);
@@ -166,12 +165,14 @@ public class NFTService {
         }
     }
 
+
     /*
          한 달 지났는지 체크
     */
     public static boolean isOneMonthPassed(LocalDateTime timestamp) {
         LocalDateTime currentTime = LocalDateTime.now(ZoneOffset.UTC);
-        long monthsDifference = ChronoUnit.MONTHS.between(timestamp, currentTime);
+        long monthsDifference = ChronoUnit.MINUTES.between(timestamp, currentTime);
+        // 원래는 ChronoUnit.MONTHS지만 빠른 테스트를 위해 1분 차이를 체크
         return monthsDifference >= 1;
     }
 
